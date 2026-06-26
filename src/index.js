@@ -1,31 +1,29 @@
 // src/index.js
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import { auth } from "./lib/auth.js";
 import { toNodeHandler } from "better-auth/node";
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5500;
 
-// Middleware
+// CORS — deve vir antes das rotas
+app.use(cors({
+  origin: "http://localhost:3000", // Next.js na porta 3000
+  credentials: true,
+}));
+
 app.use(express.json());
 
 // Rotas de autenticação do Better Auth
-// Isso cria todas as rotas automaticamente!
 app.all("/api/auth/*path", toNodeHandler(auth));
 
 // Health check
 app.get("/health", (req, res) => {
   res.json({ status: "OK" });
-});
-
-app.get("/api/me", requireAuth, (req, res) => {
-  res.json({
-    message: "Bem-vindo ao seu perfil!",
-    user: req.user, // Dados vindos do middleware
-  });
 });
 
 // Iniciar servidor
